@@ -1,0 +1,100 @@
+{
+  "name": "mc-launcher",
+  "version": "1.0.0",
+  "description": "Basit topluluk Minecraft launcher'ı - Microsoft giriş + otomatik Fabric/mod kurulumu",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",
+    "add": "node add-mod.js",
+    "remove": "node delete-mod.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "adm-zip": "^0.6.0",
+    "electron-store": "^8.2.0",
+    "minecraft-launcher-core": "^3.18.2",
+    "minecraft-server-util": "^5.4.4",
+    "msmc": "^5.0.5",
+    "node-fetch": "^2.7.0",
+    "prismarine-nbt": "^2.8.0",
+    "yauzl": "^3.4.0"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.yildizmc.launcher",
+    "productName": "YTUTayfa Minecraft Launcher",
+    "asar": true,
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "compression": "maximum",
+    "removePackageScripts": true,
+    "npmRebuild": false,
+    "extraResources": [
+      {
+        "from": "runtime/",
+        "to": "runtime/",
+        "filter": [
+          "**/*",
+          "!**/*.pdb",
+          "!**/*.log",
+          "!**/*.txt",
+          "!**/man/**",
+          "!**/demo/**",
+          "!**/sample/**"
+        ]
+      }
+    ],
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "modDownloader.js",
+      "config/**/*",
+      "package.json",
+      "node_modules/**/*",
+      "!node_modules/**/*.md",
+      "!node_modules/**/*.markdown",
+      "!node_modules/**/*.map",
+      "!node_modules/**/*.ts",
+      "!node_modules/**/*.flow",
+      "!node_modules/**/LICENSE*",
+      "!node_modules/**/license*",
+      "!node_modules/**/CHANGELOG*",
+      "!node_modules/**/README*",
+      "!node_modules/**/readme*",
+      "!node_modules/**/.github/**",
+      "!node_modules/**/.bin/**",
+      "!node_modules/**/test/**",
+      "!node_modules/**/tests/**",
+      "!node_modules/**/__tests__/**",
+      "!node_modules/**/docs/**",
+      "!node_modules/**/example/**",
+      "!node_modules/**/examples/**",
+      "!node_modules/**/*.d.ts",
+      "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,map}",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,.gitattributes,.gitignore,.npmignore}"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}
