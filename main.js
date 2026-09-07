@@ -48,36 +48,72 @@ function sendProgress(fraction) { mainWindow?.webContents.send("progress", fract
 
 // ---- Dış Link ve Klasör IPC ----
 ipcMain.handle('open-external', (e, url) => shell.openExternal(url));
+
 ipcMain.handle('open-mods-folder', () => {
   const modsDir = path.join(INSTALL_ROOT, "mods");
   if (!fs.existsSync(modsDir)) fs.mkdirSync(modsDir, { recursive: true });
   shell.openPath(modsDir);
 });
 
+// YENİ: Log Klasörünü Açma İşlemi
+ipcMain.handle('open-logs-folder', () => {
+  const logsDir = path.join(INSTALL_ROOT, "logs");
+  if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir, { recursive: true });
+  shell.openPath(logsDir);
+});
+
+// YENİ: Ayrı Pencerede CMD Formatında Log Gösterici
+ipcMain.handle('open-log-window', async () => {
+  const logWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    title: "Sistem Konsolu - YTÜ Tayfa",
+    backgroundColor: "#0a0e14",
+    autoHideMenuBar: true
+  });
+
+  // Basit bir HTML ile pencereyi siyah CMD formatında kaplıyoruz
+  const logHtml = `
+    <html>
+      <head>
+        <style>
+          body { background: #0a0e14; color: #a3b8cc; font-family: 'Courier New', monospace; padding: 15px; overflow-y: auto; font-size: 13px; }
+          .line { margin-bottom: 4px; word-wrap: break-word; }
+        </style>
+      </head>
+      <body>
+        <div style="color: #a48b57; font-weight: bold; margin-bottom: 10px;">--- OYUN LOGLARI PENCERESİ BAŞLATILDI ---</div>
+        <div style="color: #6a7f94;">Not: Canlı log akışı için ana launcher penceresindeki "Son Logu Oku" seçeneğini de kullanabilirsiniz. Bu pencere oyundan bağımsız olarak açık kalabilir.</div>
+      </body>
+    </html>
+  `;
+
+  logWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(logHtml)}`);
+});
+
 // Dışarıdan Eklenen (Diğer) Modlar IPC ve Kara Liste (Blacklist) Kontrolü
 ipcMain.handle('get-external-mods', async () => {
   const modsDir = path.join(INSTALL_ROOT, "mods");
   if (!fs.existsSync(modsDir)) return [];
-  
+
   let manifest = { mods: [], deleted_mods: [] };
-  try { manifest = await loadManifest(); } catch (err) {}
-  
+  try { manifest = await loadManifest(); } catch (err) { }
+
   const manifestFilenames = manifest.mods.map(m => m.filename);
-  const deletedFilenames = manifest.deleted_mods || []; // API'den kara listeyi çek
-  
+  const deletedFilenames = manifest.deleted_mods || [];
+
   const files = fs.readdirSync(modsDir);
   const extMods = [];
-  
+
   for (const file of files) {
     const baseName = file.endsWith('.disabled') ? file.replace('.disabled', '') : file;
 
-    // YENİ KONTROL: Eğer dosya manifest'teki deleted_mods listesindeyse hiç acımadan sil
     if (deletedFilenames.includes(baseName)) {
-      try { 
-        fs.unlinkSync(path.join(modsDir, file)); 
+      try {
+        fs.unlinkSync(path.join(modsDir, file));
         console.log(`🧹 Kara listedeki mod temizlendi: ${file}`);
-      } catch (e) {}
-      continue; // Silindiği için listeye eklemeden sonrakine geç
+      } catch (e) { }
+      continue;
     }
 
     if (file.endsWith(".jar") && !manifestFilenames.includes(file)) {
@@ -100,6 +136,23 @@ ipcMain.handle('toggle-external-mod', (e, filename, enable) => {
     else if (!enable && fs.existsSync(enabledPath)) fs.renameSync(enabledPath, disabledPath);
     return true;
   } catch (err) { return false; }
+});
+
+// YENİ: Dışarıdan Eklenen Modu Kalıcı Silme İşlemi
+ipcMain.handle('delete-external-mod', async (event, filename) => {
+  try {
+    const modsDir = path.join(INSTALL_ROOT, "mods");
+    const enabledPath = path.join(modsDir, filename);
+    const disabledPath = enabledPath + '.disabled';
+
+    if (fs.existsSync(enabledPath)) fs.unlinkSync(enabledPath);
+    if (fs.existsSync(disabledPath)) fs.unlinkSync(disabledPath);
+
+    return true; // İşlem başarılı
+  } catch (err) {
+    console.error("Mod silinirken hata oluştu:", err);
+    return false; // Hata oldu
+  }
 });
 
 ipcMain.handle('set-jvm-args', (e, args) => store.set('jvmArgsSetting', args));
@@ -141,7 +194,7 @@ ipcMain.handle("play", async (event, options) => {
 
     sendStatus("Modpack bilgisi kontrol ediliyor...");
     const manifest = await loadManifest();
-    
+
     // Sunucu Ekleme
     if (manifest.serverIp) {
       const serversDatPath = path.join(INSTALL_ROOT, "servers.dat");
@@ -162,10 +215,10 @@ ipcMain.handle("play", async (event, options) => {
         if (!serverList.some(srv => srv.ip && srv.ip.value === targetIp)) {
           serverList.unshift({ name: { type: "string", value: manifest.serverName || "Minecraft Sunucusu" }, ip: { type: "string", value: targetIp } });
           fs.writeFileSync(serversDatPath, nbt.writeUncompressed(nbtData));
-        } 
+        }
       } catch (err) { console.error("servers.dat hatası:", err); }
     }
-    
+
     const userMaxRam = `${options?.ram || 4096}M`;
 
     // 1. ADIM: MANIFEST MODLARINI GERİ ÇEVİR
@@ -226,13 +279,13 @@ ipcMain.handle("play", async (event, options) => {
     const opts = {
       authorization: auth, root: INSTALL_ROOT,
       version: { number: gameVer, type: "release", custom: customVerName },
-      javaPath: javaExecutablePath, memory: { max: userMaxRam, min: "2G" }, customArgs: customJvmArgs 
+      javaPath: javaExecutablePath, memory: { max: userMaxRam, min: "2G" }, customArgs: customJvmArgs
     };
 
     if (manifest.serverIp) {
       const [host, port] = manifest.serverIp.split(":");
       opts.quickPlay = { type: "multiplayer", identifier: `${host}:${port || "25565"}`, path: path.join(INSTALL_ROOT, "quickPlayLog.json") };
-    } 
+    }
 
     // 2. ADIM: OYUN AÇILMADAN ÖNCE MANIFEST MODLARINI GİZLE
     if (fs.existsSync(modsDir)) {
@@ -244,7 +297,7 @@ ipcMain.handle("play", async (event, options) => {
         }
       });
     }
-    
+
     currentProcess = await launcher.launch(opts);
     mainWindow?.hide();
     sendStatus("Oyun başlatıldı, iyi eğlenceler!");
