@@ -880,15 +880,18 @@ input:checked+.slider-toggle::before {
   position: relative;
 }
 
-/* YENİ: Uyarı Kutusu Yönü ve Taşma Koruması */
+/* Uyarı Kutusu Yönü ve Taşma Koruması */
 .important-star::after {
   content: attr(data-tooltip);
   position: absolute;
   top: 50%;
-  left: auto;
-  right: 25px;
-  /* Sola açılır */
-  transform: translateY(-50%) translateX(5px);
+  
+  /* ESKİ: left: auto; right: 25px; */
+  /* YENİ: Sağa açılması için left değerini kullanıyoruz */
+  left: 25px; 
+  right: auto;
+  transform: translateY(-50%) translateX(-5px);
+  
   background: rgba(15, 20, 45, 0.95);
   color: #f0f4fa;
   padding: 8px 12px;
@@ -911,5 +914,6 @@ input:checked+.slider-toggle::before {
 .important-star:hover::after {
   opacity: 1;
   visibility: visible;
+  /* Hover durumunda animasyonun pürüzsüz olması için */
   transform: translateY(-50%) translateX(0);
 }

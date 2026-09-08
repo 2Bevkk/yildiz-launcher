@@ -152,6 +152,29 @@ function applyModFilters() {
     }
   });
 
+  // YENİ: Boş liste kontrolü ve dinamik uyarı mesajı
+  let emptyMsg = document.getElementById('emptyModMsg');
+  if (!emptyMsg) {
+    emptyMsg = document.createElement('div');
+    emptyMsg.id = 'emptyModMsg';
+    emptyMsg.style.cssText = 'text-align: center; padding: 30px 10px; color: #8da4b9; font-size: 13px;';
+    modsContainer.appendChild(emptyMsg);
+  }
+
+  // Eğer gösterilecek mod yoksa, uygun uyarı metnini bas
+  if (visibleCount === 0) {
+    emptyMsg.style.display = 'block';
+    if (currentModTab === 'external' && searchTerm === '') {
+      emptyMsg.textContent = 'Diğer modlar klasörü şu an boş.';
+    } else if (searchTerm !== '') {
+      emptyMsg.textContent = 'Aramanızla eşleşen mod bulunamadı.';
+    } else {
+      emptyMsg.textContent = 'Bu kategoride mod bulunmamaktadır.';
+    }
+  } else {
+    emptyMsg.style.display = 'none';
+  }
+
   modCount.textContent = visibleCount;
   syncMasterToggle();
 }
