@@ -9,7 +9,7 @@ const nbt = require("prismarine-nbt");
 const util = require("util");
 const msu = require("minecraft-server-util");
 const parseNbt = util.promisify(nbt.parse);
-
+const { autoUpdater } = require("electron-updater");
 const INSTALL_ROOT = path.join(app.getPath("appData"), ".yildizmc", "instance");
 const store = new Store({ cwd: path.join(app.getPath("appData"), ".yildizmc") });
 let mainWindow;
@@ -29,11 +29,37 @@ function parseNbtAsync(buffer) {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 480, height: 840, resizable: false,
-    webPreferences: { preload: path.join(__dirname, "preload.js"), contextIsolation: true, nodeIntegration: false },
+    width: 420, // Genişliği 480'den 420'ye daralttık[cite: 4]
+    height: 750, // Yüksekliği 840'tan 750'ye düşürdük (arayüzüne göre ince ayar yapabilirsin)[cite: 4]
+    resizable: false, //[cite: 4]
+    icon: path.join(__dirname, 'icon.ico'), // LOGO ÇÖZÜMÜ: Yerel ikon dosyanın yolunu buraya ekle
+    webPreferences: { preload: path.join(__dirname, "preload.js"), contextIsolation: true, nodeIntegration: false }, //[cite: 4]
   });
-  mainWindow.loadFile(path.join(__dirname, "renderer", "index.html"));
-  mainWindow.setMenuBarVisibility(false);
+
+  mainWindow.loadFile(path.join(__dirname, "renderer", "index.html")); //[cite: 4]
+  mainWindow.setMenuBarVisibility(false); //[cite: 4]
+  mainWindow.once('ready-to-show', () => {
+    // Uygulama sadece build (paket) halindeyken güncellemeleri arasın
+    if (app.isPackaged) {
+      autoUpdater.checkForUpdatesAndNotify();
+    }
+  });
+
+  autoUpdater.on('update-available', (info) => {
+    mainWindow.webContents.send('updater-message', 'available', info.version);
+  });
+
+  autoUpdater.on('download-progress', (progressObj) => {
+    mainWindow.webContents.send('updater-message', 'progress', progressObj);
+  });
+
+  autoUpdater.on('update-downloaded', () => {
+    mainWindow.webContents.send('updater-message', 'downloaded');
+  });
+
+  autoUpdater.on('error', (err) => {
+    mainWindow.webContents.send('updater-message', 'error', err.message);
+  });
 }
 
 app.whenReady().then(createWindow);
@@ -44,7 +70,9 @@ app.on("window-all-closed", () => { if (currentProcess) currentProcess.kill(); i
 app.on("will-quit", () => { if (currentProcess) currentProcess.kill(); });
 
 function sendStatus(text) { mainWindow?.webContents.send("status", text); }
-function sendProgress(fraction) { mainWindow?.webContents.send("progress", fraction); }
+// Eski Hali: function sendProgress(fraction) { mainWindow?.webContents.send("progress", fraction); }
+
+function sendProgress(data) { mainWindow?.webContents.send("progress", data); }
 
 // ---- Dış Link ve Klasör IPC ----
 ipcMain.handle('open-external', (e, url) => shell.openExternal(url));
@@ -71,7 +99,9 @@ ipcMain.handle('open-log-window', async () => {
     backgroundColor: "#0a0e14",
     autoHideMenuBar: true
   });
-
+  ipcMain.handle('install-update', () => {
+    autoUpdater.quitAndInstall(false, true);
+  });
   // Basit bir HTML ile pencereyi siyah CMD formatında kaplıyoruz
   const logHtml = `
     <html>
@@ -260,7 +290,13 @@ ipcMain.handle("play", async (event, options) => {
       if (recentLogs.length > 60) recentLogs.shift();
       event.sender.send("launcher-log", e.toLowerCase().includes("error") ? "error" : "info", e);
     });
-    launcher.on("progress", (e) => { if (e.total) sendProgress(e.task / e.total); sendStatus(`İndiriliyor: ${e.type}`); });
+    // Hız/Süre izleyicisini kaldırıp eski fraction (kesir) sistemine döndük
+    launcher.on("progress", (e) => {
+      if (e.total) {
+        sendProgress(e.task / e.total);
+      }
+      sendStatus(`İndiriliyor: ${e.type}`);
+    });
 
     // CRASH TESPİTİ BURADA YAPILIYOR
     launcher.on("close", (code) => {

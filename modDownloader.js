@@ -16,17 +16,24 @@ function sha1OfFile(filePath) {
   return hash.digest("hex");
 }
 
+// downloadFile fonksiyonunda hız/zaman hesaplarını siliyoruz
 async function downloadFile(url, destPath, onProgress) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`İndirme başarısız: ${res.status}`);
-  const total = parseInt(res.headers.get('content-length'), 10);
+  const total = parseInt(res.headers.get('content-length'), 10) || 0;
   let downloaded = 0;
+  
   const chunks = [];
   res.body.on('data', (chunk) => {
     chunks.push(chunk);
     downloaded += chunk.length;
-    if (total && onProgress) onProgress(downloaded / total);
+    
+    // Sadece yüzdelik dilimi (kesir) ilet
+    if (total > 0 && onProgress) {
+      onProgress(downloaded / total);
+    }
   });
+
   await new Promise((resolve, reject) => {
     res.body.on('end', resolve);
     res.body.on('error', reject);
@@ -92,8 +99,11 @@ async function syncMods(modsDir, onStatus, onProgress, store) {
     if (alreadyOk) continue;
 
     onStatus?.(`📥 ${mod.name} indiriliyor... (${i + 1}/${allMods.length})`);
+    // syncMods içinde downloadFile çağrısını eski formata döndür
     try {
-      await downloadFile(mod.url, targetPath, (frac) => onProgress?.((i + frac) / allMods.length));
+      await downloadFile(mod.url, targetPath, (frac) => {
+        onProgress?.((i + frac) / allMods.length);
+      });
     } catch (err) {
       console.error(`❌ ${mod.name} indirilemedi:`, err);
     }

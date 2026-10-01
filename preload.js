@@ -30,7 +30,10 @@ contextBridge.exposeInMainWorld('launcherAPI', {
   onGameClosed: (callback) => ipcRenderer.on('game-closed', () => callback()),
   onGameCrashed: (callback) => ipcRenderer.on('game-crashed', (_, logs) => callback(logs)),
   onLog: (callback) => ipcRenderer.on("launcher-log", (event, type, msg) => callback(type, msg)),
-
+  // Eski Hali: onProgress: (callback) => ipcRenderer.on('progress', (_, frac) => callback(frac)),
+  onUpdateMessage: (callback) => ipcRenderer.on('updater-message', (event, type, data) => callback(type, data)),
+  installUpdate: () => ipcRenderer.invoke('install-update'),
+  onProgress: (callback) => ipcRenderer.on('progress', (_, frac) => callback(frac)),
   pingServer: () => ipcRenderer.invoke("ping-server"),
   getJvmArgs: () => ipcRenderer.invoke('get-jvm-args'),
   setJvmArgs: (args) => ipcRenderer.invoke('set-jvm-args', args),

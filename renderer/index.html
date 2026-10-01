@@ -4,32 +4,50 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark light" />
   <title>YTÜ Tayfa Launcher</title>
+  <script>try{var p=localStorage.getItem("themePref")||"system",d=matchMedia("(prefers-color-scheme: dark)").matches;document.documentElement.dataset.theme=p==="system"?(d?"dark":"light"):p}catch(e){}</script>
   <link rel="stylesheet" href="style.css" />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700;14..32,800&display=swap"
-    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
 </head>
 
 <body>
+  <!-- Kayan Arka Plan Yıldızları -->
+  <div class="stars-bg" aria-hidden="true"><span class="meteor"></span><span class="meteor"></span><span class="meteor"></span><span class="meteor"></span><span class="meteor"></span><span class="meteor"></span></div>
+
+  <header class="titlebar" id="titlebar">
+    <img src="https://i.ibb.co/FLsGKBPW/ytutayfa.webp" alt="" />
+    <span>YTÜ Tayfa Launcher</span>
+    <button id="themeToggleBtn" class="icon-btn" title="Temayı değiştir" aria-label="Temayı değiştir">
+      <svg class="theme-icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>
+      <svg class="theme-icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+    </button>
+  </header>
+  
   <div class="launcher-wrapper">
     <div class="launcher-card">
       <div class="header">
         <div class="logo-icon">
+          <!-- 10 Köşeli Kusursuz YTÜ Yıldızı (Decagram) -->
+          <svg class="decagram" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="60" cy="60" r="58" stroke-width=".75"></circle>
+            <!-- Logodaki gibi: uç açısı 36° olan sivri 10 köşeli yıldız + içindeki baklava (kite) hatları -->
+            <path d="M60.0 4.0 L68.9 32.7 L92.9 14.7 L83.2 43.1 L113.3 42.7 L88.7 60.0 L113.3 77.3 L83.2 76.9 L92.9 105.3 L68.9 87.3 L60.0 116.0 L51.1 87.3 L27.1 105.3 L36.8 76.9 L6.7 77.3 L31.3 60.0 L6.7 42.7 L36.8 43.1 L27.1 14.7 L51.1 32.7Z"></path>
+            <path d="M68.9 32.7 L71.8 43.7 L83.2 43.1 L79.2 53.8 L88.7 60.0 L79.2 66.2 L83.2 76.9 L71.8 76.3 L68.9 87.3 L60.0 80.2 L51.1 87.3 L48.2 76.3 L36.8 76.9 L40.8 66.2 L31.3 60.0 L40.8 53.8 L36.8 43.1 L48.2 43.7 L51.1 32.7 L60.0 39.8Z" opacity=".85"></path>
+          </svg>
           <img src="https://i.ibb.co/FLsGKBPW/ytutayfa.webp" alt="YTU Tayfa" />
         </div>
         <h1>YTÜ Tayfa</h1>
         <p class="subtitle">Minecraft Launcher</p>
       </div>
 
-      <div class="nav-tabs">
-        <button id="tabPlayBtn" class="nav-btn active"><span class="nav-icon">▶</span> Oyna</button>
-        <button id="tabSettingsBtn" class="nav-btn"><span class="nav-icon">⚙️</span> Ayarlar</button>
-        <button id="tabModsBtn" class="nav-btn"><span class="nav-icon">🧩</span> Modlar</button>
-        <button id="tabTerminalBtn" class="nav-btn">
+      <div class="nav-tabs" role="tablist" aria-label="Bölümler">
+        <button id="tabPlayBtn" role="tab" aria-controls="playView" aria-selected="true" class="nav-btn active"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg></span> Oynasexx</button>
+        <button id="tabSettingsBtn" role="tab" aria-controls="settingsView" aria-selected="false" class="nav-btn"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg></span> Ayarlar</button>
+        <button id="tabModsBtn" role="tab" aria-controls="modsView" aria-selected="false" class="nav-btn"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"></path><path d="M12 22V12M21 7l-9 5-9-5"></path></svg></span> Modlar</button>
+        <button id="tabTerminalBtn" role="tab" aria-controls="terminalView" aria-selected="false" class="nav-btn">
           <span class="nav-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-              stroke-linecap="round" stroke-linejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="4 17 10 11 4 5"></polyline>
               <line x1="12" y1="19" x2="20" y2="19"></line>
             </svg>
@@ -39,7 +57,7 @@
       </div>
 
       <!-- OYNA Görünümü -->
-      <div id="playView" class="view-section">
+      <div id="playView" role="tabpanel" aria-labelledby="tabPlayBtn" class="view-section">
         <div class="form-group">
           <label for="usernameInput">Kullanıcı Adı</label>
           <input type="text" id="usernameInput" placeholder="Sadece harf, rakam ve alt çizgi..." autocomplete="off" />
@@ -51,10 +69,26 @@
             <span id="playerCountDisplay" class="player-count">--/--</span>
           </div>
         </div>
+
+        <!-- SÜRÜM / SİSTEM BİLGİSİ PANELİ -->
+        <div class="sys-info-box">
+          <div class="sys-info-item">
+            <span class="sys-label">Minecraft Sürümü</span>
+            <span class="sys-value" id="mcVersionDisplay">Yükleniyor...</span>
+          </div>
+          <div class="sys-info-item">
+            <span class="sys-label">Mod Yükleyici</span>
+            <span class="sys-value" id="loaderVersionDisplay">Yükleniyor...</span>
+          </div>
+        </div>
+
         <button id="playBtn" class="primary-btn">OYNA</button>
 
         <div id="progressContainer" class="progress-container hidden">
-          <div class="progress-info"><span id="statusText">Hazırlanıyor...</span></div>
+          <div class="progress-info">
+            <span id="statusText" role="status" aria-live="polite">Hazırlanıyor...</span>
+            <span id="downloadStats" class="download-stats"></span>
+          </div>
           <div class="progressWrap">
             <div id="progressBar"></div>
           </div>
@@ -62,7 +96,14 @@
       </div>
 
       <!-- AYARLAR Görünümü -->
-      <div id="settingsView" class="view-section hidden">
+      <div id="settingsView" role="tabpanel" aria-labelledby="tabSettingsBtn" class="view-section hidden">
+        <div class="form-group">
+          <span class="group-label" id="themeLabel">Tema</span>
+          <div class="segmented" role="radiogroup" aria-labelledby="themeLabel">
+            <label><input type="radio" name="themePref" id="themeLight" value="light" />Açık</label>
+            <label><input type="radio" name="themePref" id="themeDark" value="dark" />Koyu</label>
+          </div>
+        </div>
         <div class="form-group">
           <div class="ram-header">
             <label for="ramRange">Bellek (RAM)</label>
@@ -74,42 +115,26 @@
           </div>
           <p class="hint-text">Sistem RAM'inizin yarısını geçmemeye özen gösterin.</p>
         </div>
-        <div class="form-group" style="margin-top: 24px;">
+        <div class="form-group spaced">
           <label for="jvmArgsInput">Özel Java Parametreleri (JVM Args)</label>
-          <textarea id="jvmArgsInput" class="custom-textarea" placeholder="-XX:+UseG1GC -XX:MaxGCPauseMillis=200..."
-            spellcheck="false"></textarea>
+          <textarea id="jvmArgsInput" class="custom-textarea" placeholder="-XX:+UseG1GC -XX:MaxGCPauseMillis=200..." spellcheck="false"></textarea>
           <p class="hint-text">İsteğe bağlı optimizasyon komutlarını aralarında boşluk bırakarak yazın.</p>
         </div>
       </div>
 
       <!-- TERMINAL (LOG) Görünümü -->
-      <div id="terminalView" class="view-section hidden">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-          <h2 style="color: #fff; font-size: 16px;">Sistem Konsolu</h2>
-          <div style="display: flex; gap: 8px;">
-            <!-- Log Kopyalama Butonu -->
-            <button id="copyLogsBtn" class="terminal-action-btn" title="Tüm Logu Kopyala">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-              </svg>
+      <div id="terminalView" role="tabpanel" aria-labelledby="tabTerminalBtn" class="view-section hidden">
+        <div class="terminal-head">
+          <h2>Sistem Konsolu</h2>
+          <div class="terminal-actions">
+            <button id="copyLogsBtn" class="terminal-action-btn" title="Tüm Logu Kopyala" aria-label="Tüm Logu Kopyala">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
             </button>
-            <!-- Klasörü Aç Butonu -->
-            <button id="openLogsFolderBtn" class="terminal-action-btn" title="Log Klasörünü Aç">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-              </svg>
+            <button id="openLogsFolderBtn" class="terminal-action-btn" title="Log Klasörünü Aç" aria-label="Log Klasörünü Aç">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
             </button>
-            <!-- Yeni Pencerede Aç Butonu -->
-            <button id="openLogWindowBtn" class="terminal-action-btn" title="Son Logu Yeni Pencerede Oku">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <line x1="10" y1="14" x2="21" y2="3"></line>
-              </svg>
+            <button id="openLogWindowBtn" class="terminal-action-btn" title="Son Logu Yeni Pencerede Oku" aria-label="Son Logu Yeni Pencerede Oku">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
             </button>
           </div>
         </div>
@@ -119,36 +144,28 @@
       </div>
 
       <!-- MODLAR Görünümü -->
-      <div id="modsView" class="view-section hidden">
+      <div id="modsView" role="tabpanel" aria-labelledby="tabModsBtn" class="view-section hidden">
         <div class="mod-header">
-          <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="mod-master">
             <span class="mod-title">Tümünü Aç/Kapat</span>
             <label class="switch" title="Görünen modları Aç/Kapat">
-              <input type="checkbox" id="toggleAllMods" checked>
+              <input type="checkbox" id="toggleAllMods" aria-label="Görünen tüm modları aç veya kapat" checked>
               <span class="slider-toggle"></span>
             </label>
           </div>
           <div class="mod-header-right">
             <span class="mod-count" id="modCount">0</span>
-            <button id="openFolderBtn" class="refresh-mods-btn" title="Mod Klasörünü Aç">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-              </svg>
+            <button id="openFolderBtn" class="refresh-mods-btn" title="Mod Klasörünü Aç" aria-label="Mod Klasörünü Aç">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
             </button>
-            <button id="refreshModsBtn" class="refresh-mods-btn" title="Modları Yenile">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="23 4 23 10 17 10"></polyline>
-                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-              </svg>
+            <button id="refreshModsBtn" class="refresh-mods-btn" title="Modları Yenile" aria-label="Modları Yenile">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
             </button>
           </div>
         </div>
 
-        <div class="form-group" style="margin-bottom: 12px;">
-          <input type="text" id="modSearchInput" placeholder="Mod ara..." style="padding: 10px 14px; font-size: 13px;"
-            autocomplete="off" />
+        <div class="form-group">
+          <input type="text" id="modSearchInput" placeholder="Mod ara..." aria-label="Mod ara" class="compact" autocomplete="off" />
         </div>
 
         <div class="mod-tab-group">
@@ -162,60 +179,72 @@
 
       <!-- Sabit Footer -->
       <div class="footer-socials">
-        <!-- YTÜ Logolu Tüm Linkler Butonu -->
-        <button id="btnAllLinks" class="social-btn all-links" title="YTÜ Tayfa Tüm Linkler">
-          <img src="https://i.ibb.co/FLsGKBPW/ytutayfa.webp" alt="Links"
-            style="width: 22px; border-radius: 4px; object-fit: contain;">
+        <button id="btnAllLinks" class="social-btn all-links" title="YTÜ Tayfa Tüm Linkler" aria-label="YTÜ Tayfa Tüm Linkler">
+          <img src="https://i.ibb.co/FLsGKBPW/ytutayfa.webp" alt="Links">
         </button>
-        <button id="btnWp" class="social-btn wp" title="WhatsApp Grubu">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path
-              d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
-          </svg>
+        <button id="btnWp" class="social-btn wp" title="WhatsApp Grubu" aria-label="WhatsApp Grubu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" /></svg>
         </button>
-        <button id="btnDc" class="social-btn dc" title="Discord Sunucusu">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path
-              d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z" />
-          </svg>
+        <button id="btnDc" class="social-btn dc" title="Discord Sunucusu" aria-label="Discord Sunucusu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z" /></svg>
         </button>
-        <button id="btnInfo" class="social-btn info" title="Rehber">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-            stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="16" x2="12" y2="12"></line>
-            <line x1="12" y1="8" x2="12.01" y2="8"></line>
-          </svg>
+        <button id="btnInfo" class="social-btn info" title="Rehber" aria-label="Rehber">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
         </button>
       </div>
     </div>
   </div>
 
   <div id="customModal" class="modal-overlay hidden">
-    <div class="modal-card">
+    <div class="modal-card" role="alertdialog" aria-modal="true" aria-labelledby="alertTitle" aria-describedby="modalMessage">
       <div class="modal-icon">⚠️</div>
-      <h3>Uyarı</h3>
+      <h3 id="alertTitle">Uyarı</h3>
       <p id="modalMessage">Lütfen bir kullanıcı adı girin!</p>
       <button id="modalCloseBtn" class="modal-btn">Tamam</button>
     </div>
   </div>
 
-  <div id="crashModal" class="modal-overlay hidden">
-    <div class="modal-card">
-      <div class="modal-icon" style="color: #ef4444;">💥</div>
-      <h3>Oyun Çöktü!</h3>
-      <p>Oyun beklenmedik bir şekilde kapandı. Sorunu çözebilmemiz için lütfen logu kopyalayıp Discord'da yetkililere
-        iletin.</p>
-      <div style="display: flex; gap: 10px;">
-        <button id="copyLogBtn" class="modal-btn" style="background: linear-gradient(135deg, #a48b57, #887042);">Logu
-          Kopyala</button>
-        <button id="crashCloseBtn" class="modal-btn"
-          style="background: linear-gradient(135deg, #475569, #334155);">Kapat</button>
+  <div id="confirmModal" class="modal-overlay hidden">
+    <div class="modal-card" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+      <div class="modal-icon danger">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
       </div>
+      <h3 id="confirmTitle">Modu sil</h3>
+      <p id="confirmMessage"></p>
+      <div>
+        <button id="confirmCancelBtn" class="modal-btn secondary">Vazgeç</button>
+        <button id="confirmOkBtn" class="modal-btn danger">Sil</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="crashModal" class="modal-overlay hidden">
+    <div class="modal-card" role="alertdialog" aria-modal="true" aria-labelledby="crashTitle">
+      <div class="modal-icon">💥</div>
+      <h3 id="crashTitle">Oyun Çöktü!</h3>
+      <p>Oyun beklenmedik bir şekilde kapandı. Sorunu çözebilmemiz için lütfen logu kopyalayıp Discord'da yetkililere iletin.</p>
+      <div style="display: flex; gap: 10px;">
+        <button id="copyLogBtn" class="modal-btn">Logu Kopyala</button>
+        <button id="crashCloseBtn" class="modal-btn secondary">Kapat</button>
+      </div>
+    </div>
+  </div>
+  <div id="updateModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-icon" style="color: var(--accent);">🔄</div>
+      <h3 id="updateTitle">Yeni Sürüm Bulundu!</h3>
+      <p id="updateMessage">Launcher güncelleniyor, lütfen bekleyin...</p>
+      
+      <!-- İlerleme Çubuğu -->
+      <div class="progressWrap" id="updateProgressWrap" style="margin-bottom: 20px;">
+        <div id="updateProgressBar" style="height: 100%; width: 0%; background: linear-gradient(90deg, var(--ok), #22c55e); border-radius: 8px; transition: width 0.3s;"></div>
+      </div>
+
+      <button id="updateRestartBtn" class="modal-btn hidden">Yeniden Başlat ve Kur</button>
+      <button id="updateCloseBtn" class="modal-btn secondary hidden">Kapat</button>
     </div>
   </div>
 
   <script src="renderer.js"></script>
 </body>
-
 </html>

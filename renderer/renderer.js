@@ -1,3 +1,29 @@
+// ---- Tema ve pencere (yalnızca arayüz) ----
+const rootEl = document.documentElement;
+const themeMQ = window.matchMedia('(prefers-color-scheme: dark)');
+let themePref = localStorage.getItem('themePref') || 'system';
+function applyTheme(pref, animate = true) {
+  const resolved = pref === 'system' ? (themeMQ.matches ? 'dark' : 'light') : pref;
+  if (animate) { rootEl.classList.add('theme-anim'); setTimeout(() => rootEl.classList.remove('theme-anim'), 350); }
+  rootEl.dataset.theme = resolved;
+  const radio = document.getElementById('theme' + resolved[0].toUpperCase() + resolved.slice(1)); // sistem temasıyla açıldıysa da ilgili seçeneği işaretler
+  if (radio) radio.checked = true;
+  // İsteğe bağlı: main tarafında tanımlıysa başlık çubuğu simge rengini günceller
+  if (window.launcherAPI && window.launcherAPI.setTitleBarOverlay) window.launcherAPI.setTitleBarOverlay(resolved);
+}
+function setThemePref(pref) { themePref = pref; localStorage.setItem('themePref', pref); applyTheme(pref); }
+applyTheme(themePref, false);
+themeMQ.addEventListener('change', () => { if (themePref === 'system') applyTheme('system'); });
+document.querySelectorAll('input[name="themePref"]').forEach(r => r.addEventListener('change', () => setThemePref(r.value)));
+document.getElementById('themeToggleBtn').addEventListener('click', () => setThemePref(rootEl.dataset.theme === 'dark' ? 'light' : 'dark'));
+const wco = navigator.windowControlsOverlay;
+const syncWco = () => rootEl.classList.toggle('wco', !!(wco && wco.visible));
+syncWco();
+if (wco) wco.addEventListener('geometrychange', syncWco);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { customModal.classList.add('hidden'); crashModal.classList.add('hidden'); }
+});
+
 const usernameInput = document.getElementById("usernameInput");
 const playBtn = document.getElementById("playBtn");
 const progressContainer = document.getElementById("progressContainer");
@@ -28,7 +54,7 @@ const settingsView = document.getElementById('settingsView');
 const modsView = document.getElementById('modsView');
 const terminalView = document.getElementById('terminalView');
 const terminalOutput = document.getElementById('terminalOutput');
-
+const downloadStats = document.getElementById("downloadStats");
 const customModal = document.getElementById("customModal");
 const modalMessage = document.getElementById("modalMessage");
 const modalCloseBtn = document.getElementById("modalCloseBtn");
@@ -51,6 +77,7 @@ let currentModTab = 'all';
 function showAlert(message) {
   modalMessage.textContent = message;
   customModal.classList.remove("hidden");
+  modalCloseBtn.focus();
 }
 
 modalCloseBtn.addEventListener("click", () => customModal.classList.add("hidden"));
@@ -95,6 +122,7 @@ function switchTab(activeButton, activeView) {
   [tabPlayBtn, tabSettingsBtn, tabModsBtn, tabTerminalBtn].forEach(btn => btn.classList.remove('active'));
   [playView, settingsView, modsView, terminalView].forEach(view => view.classList.add('hidden'));
   activeButton.classList.add('active');
+  [tabPlayBtn, tabSettingsBtn, tabModsBtn, tabTerminalBtn].forEach(btn => btn.setAttribute('aria-selected', String(btn === activeButton)));
   activeView.classList.remove('hidden');
 }
 
@@ -125,9 +153,12 @@ ramRange.addEventListener('input', (e) => {
 function updateModTabUI(activeBtn) {
   [tabAllMods, tabManifestMods, tabExternalMods].forEach(btn => btn.classList.remove('active'));
   activeBtn.classList.add('active');
+  [tabAllMods, tabManifestMods, tabExternalMods].forEach(btn => btn.setAttribute('aria-pressed', String(btn === activeBtn)));
 }
 
 function applyModFilters() {
+  // Liste yüklenirken / hata ya da boş-sunucu durumunda ekranda başka mesaj gösterme
+  if (modsContainer.querySelector('.loading-mods, .error-state, .no-mods')) return;
   const searchTerm = modSearchInput.value.toLowerCase();
   const items = modsContainer.querySelectorAll('.mod-item');
   let visibleCount = 0;
@@ -157,7 +188,7 @@ function applyModFilters() {
   if (!emptyMsg) {
     emptyMsg = document.createElement('div');
     emptyMsg.id = 'emptyModMsg';
-    emptyMsg.style.cssText = 'text-align: center; padding: 30px 10px; color: #8da4b9; font-size: 13px;';
+    emptyMsg.className = 'empty-msg';
     modsContainer.appendChild(emptyMsg);
   }
 
@@ -237,6 +268,57 @@ toggleAllMods.addEventListener('change', async (e) => {
   }
 });
 
+// ---- Kullanıcı dostu hata mesajları ----
+const ERR_ICONS = {
+  offline: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M16.7 11.1A11 11 0 0 1 21.6 14M5 12.9a11 11 0 0 1 5.2-2.7M10.7 5.1A16 16 0 0 1 22.6 9M1.4 9a16 16 0 0 1 4.2-2.7M8.5 16.1a6 6 0 0 1 7 0M12 20h.01"></path></svg>',
+  warn: '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>'
+};
+function friendlyError(err) {
+  const msg = String((err && err.message) || err || '');
+  if (!navigator.onLine || /failed to fetch|network|load failed|ENOTFOUND|ECONN|ETIMEDOUT|timed? ?out/i.test(msg)) {
+    return { icon: 'offline', title: 'Bağlantı kurulamadı', text: 'İnternet bağlantını kontrol edip tekrar dene.' };
+  }
+  if (err instanceof SyntaxError) {
+    return { icon: 'warn', title: 'Liste okunamadı', text: 'Sunucudan beklenmeyen bir yanıt geldi. Biraz sonra tekrar dene.' };
+  }
+  if (/alınamadı|HTTP|\b[45]\d\d\b/i.test(msg)) {
+    return { icon: 'warn', title: 'Sunucuya ulaşılamadı', text: 'Mod listesi şu an alınamıyor. Biraz sonra tekrar dene.' };
+  }
+  return { icon: 'warn', title: 'Bir şeyler ters gitti', text: 'Mod listesi yüklenemedi. Tekrar denemek için aşağıdaki butona bas.' };
+}
+function renderModsError(err) {
+  const e = friendlyError(err);
+  modsContainer.innerHTML = `<div class="error-state"><div class="error-icon">${ERR_ICONS[e.icon]}</div><h4>${e.title}</h4><p>${e.text}</p><button type="button" class="retry-btn">Tekrar dene</button></div>`;
+  modsContainer.querySelector('.retry-btn').addEventListener('click', () => loadModList());
+}
+
+// ---- Modern onay penceresi (confirm() yerine) ----
+const confirmModal = document.getElementById('confirmModal');
+function showConfirm({ title, before = '', name = '', after = '', okText = 'Sil' }) {
+  return new Promise((resolve) => {
+    const okBtn = document.getElementById('confirmOkBtn');
+    const cancelBtn = document.getElementById('confirmCancelBtn');
+    document.getElementById('confirmTitle').textContent = title;
+    const strong = document.createElement('strong');
+    strong.textContent = name;
+    document.getElementById('confirmMessage').replaceChildren(before, strong, after);
+    okBtn.textContent = okText;
+    const onKey = (e) => { if (e.key === 'Escape') done(false); };
+    const done = (value) => {
+      confirmModal.classList.add('hidden');
+      okBtn.onclick = cancelBtn.onclick = confirmModal.onclick = null;
+      document.removeEventListener('keydown', onKey);
+      resolve(value);
+    };
+    okBtn.onclick = () => done(true);
+    cancelBtn.onclick = () => done(false);
+    confirmModal.onclick = (e) => { if (e.target === confirmModal) done(false); };
+    document.addEventListener('keydown', onKey);
+    confirmModal.classList.remove('hidden');
+    cancelBtn.focus();
+  });
+}
+
 async function loadModList() {
   modsContainer.innerHTML = `<div class="loading-mods"><div class="spinner"></div><span>Yükleniyor...</span></div>`;
   modCount.textContent = '...';
@@ -296,13 +378,15 @@ async function loadModList() {
     });
 
     if (loadedManifestMods.length === 0 && loadedExternalMods.length === 0) {
-      modsContainer.innerHTML = `<div style="text-align: center; padding: 30px 10px; color: #8da4b9; font-size: 13px;">Sunucuda mod bulunamadı.</div>`;
+      modsContainer.innerHTML = `<div class="empty-msg no-mods">Sunucuda mod bulunamadı.</div>`;
+      modCount.textContent = '0';
     }
 
     applyModFilters();
 
   } catch (err) {
-    modsContainer.innerHTML = `<p style="color: #f87171; font-size: 13px; text-align: center;">Yüklenemedi: ${err.message}</p>`;
+    console.error("Mod listesi hatası:", err);
+    renderModsError(err);
     modCount.textContent = '?';
   }
 }
@@ -374,7 +458,7 @@ function createModElement(name, filename, iconUrl, version, isChecked, isImporta
     deleteBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
 
     deleteBtn.addEventListener('click', async () => {
-      const confirmed = confirm(`${name} modunu tamamen silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`);
+      const confirmed = await showConfirm({ title: 'Modu sil', name, after: ' modu kalıcı olarak silinecek. Bu işlem geri alınamaz.' });
       if (confirmed) {
         // İlgili mod silinirken UI listesinden de direkt siler, apiye haberi verir
         const success = await window.launcherAPI.deleteExternalMod(filename);
@@ -382,7 +466,7 @@ function createModElement(name, filename, iconUrl, version, isChecked, isImporta
           item.remove();
           applyModFilters();
         } else {
-          alert("Mod dosyası silinirken bir hata oluştu!");
+          showAlert("Mod dosyası silinirken bir sorun oluştu. Oyunun kapalı olduğundan emin olup tekrar dene.");
         }
       }
     });
@@ -411,10 +495,22 @@ window.launcherAPI.onGameCrashed((logs) => {
   resetPlayButton();
   latestCrashLog = logs;
   crashModal.classList.remove("hidden");
+  copyLogBtn.focus();
 });
 
 window.launcherAPI.onStatus((text) => statusText.textContent = text);
-window.launcherAPI.onProgress((frac) => progressBar.style.width = `${Math.min(100, Math.round(frac * 100))}%`);
+window.launcherAPI.onProgress((frac) => {
+  // Kesirli sayıyı 0-100 arası yüzdeye çevir
+  const percentage = Math.min(100, Math.round(frac * 100));
+  
+  // Progress barı doldur
+  progressBar.style.width = `${percentage}%`;
+  
+  // İstatistik metnine direkt yüzdeyi yaz (Örn: %45)
+  if(downloadStats) {
+    downloadStats.textContent = `%${percentage}`;
+  }
+});
 window.launcherAPI.onGameClosed(() => { isPlaying = false; resetPlayButton(); });
 
 function resetPlayButton() {
@@ -424,6 +520,8 @@ function resetPlayButton() {
   usernameInput.disabled = false;
   progressContainer.classList.add("hidden");
   progressBar.style.width = "0%";
+  
+  if (downloadStats) downloadStats.textContent = "";
 }
 
 playBtn.addEventListener("click", async () => {
@@ -494,5 +592,93 @@ async function checkServerStatus() {
     document.getElementById("playerCountDisplay").textContent = "Sunucu şu an kapalı";
   }
 }
+// ---- Sürüm Bilgilerini Getir ve Ekrana Yazdır ----
+async function loadGameInfo() {
+  try {
+    const npointUrl = 'https://api.npoint.io/176eec75c7a66d1ea571';
+    const response = await fetch(npointUrl, { cache: 'no-store' });
+    
+    if (response.ok) {
+      const data = await response.json();
+      // Manifestten sürüm verilerini HTML'e yazdır
+      document.getElementById('mcVersionDisplay').textContent = data.minecraftVersion || "Bilinmiyor";
+      document.getElementById('loaderVersionDisplay').textContent = data.fabricLoaderVersion ? `Fabric ${data.fabricLoaderVersion}` : "Bilinmiyor";
+    }
+  } catch (err) {
+    document.getElementById('mcVersionDisplay').textContent = "Bağlantı Hatası";
+    document.getElementById('loaderVersionDisplay').textContent = "Bağlantı Hatası";
+  }
+}
+// Güncelleme Ekranı Elementleri
+const updateModal = document.getElementById("updateModal");
+const updateTitle = document.getElementById("updateTitle");
+const updateMessage = document.getElementById("updateMessage");
+const updateProgressWrap = document.getElementById("updateProgressWrap");
+const updateProgressBar = document.getElementById("updateProgressBar");
+const updateRestartBtn = document.getElementById("updateRestartBtn");
+const updateCloseBtn = document.getElementById("updateCloseBtn");
+
+window.launcherAPI.onUpdateMessage((type, data) => {
+  if (type === 'available') {
+    updateModal.classList.remove('hidden');
+    updateTitle.textContent = "Yeni Launcher Sürümü Bulundu!";
+    updateMessage.textContent = `v${data} sürümü indiriliyor, lütfen bekleyin...`;
+    updateProgressWrap.classList.remove('hidden');
+    updateRestartBtn.classList.add('hidden');
+    updateCloseBtn.classList.add('hidden');
+  } 
+  else if (type === 'progress') {
+    updateProgressBar.style.width = `${data.percent}%`;
+    const speedMB = (data.bytesPerSecond / (1024 * 1024)).toFixed(1);
+    updateMessage.textContent = `İndiriliyor: %${Math.round(data.percent)} (${speedMB} MB/s)`;
+  } 
+  else if (type === 'downloaded') {
+    updateTitle.textContent = "Güncelleme Hazır!";
+    updateMessage.textContent = "Yeni sürüm başarıyla indirildi. Kurulum için yeniden başlatın.";
+    updateProgressWrap.classList.add('hidden');
+    updateRestartBtn.classList.remove('hidden');
+  } 
+  else if (type === 'error') {
+    // Sadece güncelleme ekranı açıksa hatayı göster (kullanıcıyı gereksiz rahatsız etmemek için)
+    if (!updateModal.classList.contains('hidden')) {
+      updateTitle.textContent = "Güncelleme Başarısız";
+      updateMessage.textContent = "Güncelleme indirilirken bir hata oluştu. Daha sonra tekrar denenecek.";
+      updateProgressWrap.classList.add('hidden');
+      updateCloseBtn.classList.remove('hidden');
+    }
+  }
+});
+
+updateRestartBtn.addEventListener('click', () => {
+  updateRestartBtn.disabled = true;
+  updateRestartBtn.textContent = "Kapatılıyor...";
+  window.launcherAPI.installUpdate();
+});
+
+updateCloseBtn.addEventListener('click', () => {
+  updateModal.classList.add('hidden');
+});
+// Uygulama açıldığında sürüm bilgilerini yükle
+loadGameInfo();
 checkServerStatus();
 setInterval(checkServerStatus, 30000);
+
+// ---- Yıldız dönüş hızı: animasyonu yeniden başlatmadan, mevcut açıdan yumuşakça hızlanır/yavaşlar ----
+(function () {
+  const decagram = document.querySelector('.decagram');
+  const spinAnim = decagram && decagram.getAnimations ? decagram.getAnimations()[0] : null;
+  if (!spinAnim) return;
+  const FAST = 6; // 60 sn'lik dönüş -> 10 sn
+  let rate = 1, target = 1, raf = 0;
+  function step() {
+    rate += (target - rate) * 0.06;
+    if (Math.abs(target - rate) < 0.01) rate = target;
+    spinAnim.playbackRate = rate;
+    if (rate !== target) raf = requestAnimationFrame(step);
+  }
+  new MutationObserver(() => {
+    target = progressContainer.classList.contains('hidden') ? 1 : FAST;
+    cancelAnimationFrame(raf);
+    step();
+  }).observe(progressContainer, { attributes: true, attributeFilter: ['class'] });
+})();
