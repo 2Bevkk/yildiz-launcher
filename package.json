@@ -1,13 +1,14 @@
 {
   "name": "mc-launcher",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Basit topluluk Minecraft launcher'ı - Microsoft giriş + otomatik Fabric/mod kurulumu",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder",
     "add": "node add-mod.js",
-    "remove": "node delete-mod.js"
+    "remove": "node delete-mod.js",
+    "build": "electron-builder --win"
   },
   "author": "",
   "license": "ISC",
