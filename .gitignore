@@ -1,3 +1,28 @@
+Node.js Bağımlılıkları (Bunlar package.json'dan otomatik kurulur, depoyu şişirmemeli)
+
 node_modules/
+npm-debug.log
+yarn-error.log
+
+Electron Builder / Derleme Çıktıları (.exe, .asar vb. dosyalar burada birikir)
+
 dist/
-runtime/
+out/
+release/
+build/
+!build/icon.ico
+
+İşletim Sistemi Dosyaları (Gereksiz önbellek dosyaları)
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+Editör / IDE Ayarları
+
+.vscode/
+.idea/
+
+Çevre Değişkenleri (İleride şifre/api anahtarı eklersen güvende kalsın)
+
+.env
