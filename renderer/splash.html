@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Başlatılıyor...</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(13, 12, 38, 0.95); /* Yarı saydam lacivert/siyah */
+      color: #eeecfa;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      overflow: hidden;
+      border-radius: 12px;
+      -webkit-app-region: drag; /* Pencere taşınabilir olsun */
+      border: 1px solid rgba(210, 185, 120, 0.2);
+    }
+    
+    .logo-container {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    /* Kusursuz YTÜ Yıldızı - Döndürme Efekti */
+    .decagram {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      color: #a48b57;
+      opacity: 0.8;
+      animation: spin 8s linear infinite;
+    }
+
+    .logo-img {
+      position: relative;
+      width: 60px;
+      height: auto;
+      z-index: 2;
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 5px 0;
+      letter-spacing: 0.5px;
+    }
+
+    p {
+      font-size: 13px;
+      color: #aaa8c8;
+      margin: 0;
+    }
+
+    .loader-bar {
+      margin-top: 30px;
+      width: 160px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .loader-progress {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 50%;
+      background: linear-gradient(90deg, #a48b57, #d2b978);
+      border-radius: 4px;
+      animation: loadAnim 1.5s infinite ease-in-out alternate;
+    }
+
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    @keyframes loadAnim { 
+      0% { left: -50%; } 
+      100% { left: 100%; } 
+    }
+  </style>
+</head>
+<body>
+  <div class="logo-container">
+    <svg class="decagram" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+      <circle cx="60" cy="60" r="58" stroke-width=".75"></circle>
+      <path d="M60.0 4.0 L68.9 32.7 L92.9 14.7 L83.2 43.1 L113.3 42.7 L88.7 60.0 L113.3 77.3 L83.2 76.9 L92.9 105.3 L68.9 87.3 L60.0 116.0 L51.1 87.3 L27.1 105.3 L36.8 76.9 L6.7 77.3 L31.3 60.0 L6.7 42.7 L36.8 43.1 L27.1 14.7 L51.1 32.7Z"></path>
+      <path d="M68.9 32.7 L71.8 43.7 L83.2 43.1 L79.2 53.8 L88.7 60.0 L79.2 66.2 L83.2 76.9 L71.8 76.3 L68.9 87.3 L60.0 80.2 L51.1 87.3 L48.2 76.3 L36.8 76.9 L40.8 66.2 L31.3 60.0 L40.8 53.8 L36.8 43.1 L48.2 43.7 L51.1 32.7 L60.0 39.8Z" opacity=".85"></path>
+    </svg>
+    <img src="./ytutayfa.webp" alt="YTU Logo" class="logo-img">
+  </div>
+  
+  <h1>YTÜ Tayfa</h1>
+  <p>Launcher hazırlanıyor...</p>
+  
+  <div class="loader-bar">
+    <div class="loader-progress"></div>
+  </div>
+</body>
+</html>
